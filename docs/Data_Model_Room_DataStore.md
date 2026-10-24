@@ -1,63 +1,43 @@
 # FitPlan – Data Model (Room & DataStore)
 
-This document defines the data model used by FitPlan, including Room entities, relationships, and DataStore preferences.
+This document defines the data FitPlan stores on the device. FitPlan is calorie-based: the user enters a calorie goal, available time and fitness level.
 
-## 1. Room Entities
+## 1. Room entities
 
-### UserProfile
-Stores basic user information and planning preferences.
+### DailyRecordEntity
+One row per day.
+- date: String (Primary Key, yyyy-MM-dd)
+- goalKcal: Int
+- availableMinutes: Int
+- fitnessLevel: String (BEGINNER / INTERMEDIATE / ADVANCED)
 
-- userId: Int (Primary Key)
-- name: String
-- dailyGoalMinutes: Int
+### PlanItemEntity
+The activities of a day's plan. A completed activity is a plan item with `isDone = true`.
+- id: Int (Primary Key, auto-generated)
+- date: String (Foreign Key → DailyRecordEntity.date)
+- activityName: String
+- type: String (Walking / Cardio / Running / Stairs)
+- minutes: Int
+- estimatedKcal: Int
+- isDone: Boolean
+- completedAt: Long? (null until the activity is finished)
 
-### Activity
-Stores activities that can be added to a daily plan.
+## 2. Relationship
+One DailyRecordEntity has many PlanItemEntity rows (one day → many plan items).
+History and weekly statistics are queries over these two tables (for example, the last 7 days and the sum of `estimatedKcal` where `isDone = true`).
 
-- activityId: Int (Primary Key)
-- title: String
-- category: String
-- durationMinutes: Int
-- description: String
+## 3. DataStore (Preferences) keys
+- last_goal_kcal: Int
+- last_fitness_level: String
+- reminders_enabled: Boolean
+- reminder_time: String (HH:mm)
+- goal_alerts_enabled: Boolean
+- first_launch_done: Boolean
 
-### DailyPlan
-Stores the user's daily plans.
+## 4. Domain models
+The Domain layer has its own models (Activity, PlanItem, UserGoal, FitnessLevel, DailyRecord, WeeklySummary). The repository implementations in the Data layer map the Room entities and DataStore values to these models, so the UI and Domain never see Room classes.
 
-- planId: Int (Primary Key)
-- date: String
-- userId: Int (Foreign Key)
-
-### PlanActivity
-Connects activities to a daily plan.
-
-- planActivityId: Int (Primary Key)
-- planId: Int (Foreign Key)
-- activityId: Int (Foreign Key)
-- isCompleted: Boolean
-
-## 2. Relationships
-
-- One UserProfile can have many DailyPlan records.
-- One DailyPlan can contain many PlanActivity records.
-- Each PlanActivity references one Activity.
-- PlanActivity connects DailyPlan and Activity.
-
-## 3. DataStore Preferences
-
-DataStore is used for lightweight application settings and user preferences.
-
-The following preferences are stored:
-
-- Dark mode enabled/disabled.
-- Notifications enabled/disabled.
-- Reminder time.
-- Default daily activity goal.
-- First-launch/onboarding completion status.
-
-## 4. Storage Responsibilities
-
-**Room:** Stores structured and persistent application data such as activities, daily plans, and completion history.
-
-**DataStore:** Stores small user preferences and application settings.
-
-This separation keeps FitPlan's structured data organized in Room while lightweight settings are managed efficiently with DataStore.
+## 5. Storage responsibilities
+- **Room:** structured data (daily records, plan items, history).
+- **DataStore:** small settings and preferences.
+- **ActivityCatalog:** static list of activities and kcal rates, kept in code (not in the database).
