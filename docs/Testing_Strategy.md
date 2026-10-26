@@ -55,7 +55,7 @@ Integration tests will verify that different parts of FitPlan work together corr
 ## 6. Testing Goal
 
 The goal of the testing strategy is to ensure that FitPlan is reliable, that data is handled correctly, and that the main user flows work as expected.
-7. Planned Test Cases – Milestone 2 Stage 2
+## 7. Planned Test Cases – Milestone 2 Stage 2
 
 Responsible Member: Kadi (kadyq2006)
 
@@ -83,7 +83,7 @@ TC18	Goal Notification	Trigger the same completed-goal condition repeatedly.	The
 TC19	Screen States	Display loading, empty, error, and success states.	Appropriate messages and UI states are displayed.	UI	Planned
 TC20	Weekly Statistics	Display statistics for saved activity records.	Statistics use the correct saved dates and activity data.	Integration	Planned
 
-8. Scope Review and Pending Decisions
+## 8. Scope Review and Pending Decisions
 
 The existing testing strategy mentions dark mode, activity creation, record editing and deletion, and onboarding.
 
@@ -91,7 +91,7 @@ These features must be checked against the approved project scope before they ar
 
 The team must also confirm input validation boundaries, estimated calorie rates, and how regenerating a partially completed daily plan should work.
 
-9. Test Execution and Evidence
+## 9. Test Execution and Evidence
 
 All test cases are currently documented as Planned.
 
