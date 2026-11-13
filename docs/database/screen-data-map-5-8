@@ -1,0 +1,8 @@
+# Screen Data Mapping (Screens 5–8)
+
+| Screen | Reads | Writes | Source |
+| :--- | :--- | :--- | :--- |
+| **5 – Progress Details** | Calories burned, remaining calories, active time, completed activities | None | Room: `DailyRecordEntity`, `CompletedActivityEntity` |
+| **6 – History** | Past daily goals, completed activities, and calories burned | None | Room: `DailyRecordEntity`, `CompletedActivityEntity` |
+| **7 – Weekly Statistics** | Last 7 days’ activity data, total calories burned, and goals reached | None | Room: `DailyRecordEntity`, `CompletedActivityEntity` |
+| **8 – Reminder Settings** | Current reminder settings and saved preferences | Reminder toggle, reminder time, goal alert settings, clear history action | DataStore: Preferences; Room: History data |
