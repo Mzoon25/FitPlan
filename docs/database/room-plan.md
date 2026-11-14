@@ -1,3 +1,4 @@
+
 # FitPlan – Room Database Plan
 
 ## A4.1 Entities
@@ -5,7 +6,7 @@
 | Entity class | Table | Purpose |
 |---|---|---|
 | DailyRecordEntity | DailyRecord | Stores each day's calorie goal, available time, and fitness level as a historical snapshot. |
-| PlanItemEntity | PlanItem | Stores planned activities, estimated calories, completion status, and elapsed time for each day. |
+| PlanItemEntity | PlanItem | Stores planned activities, estimated calories, completion status, completion timestamp, and actual elapsed time for each day. |
 
 ### DailyRecordEntity fields
 
@@ -27,7 +28,8 @@
 | durationMinutes | Int | Non-null, greater than zero |
 | estimatedKcal | Double | Non-null, non-negative |
 | isDone | Boolean | Non-null, default false |
-| completedAt | Int? | Nullable; active seconds at completion according to current A3.2 |
+| completedAt | Long? | Nullable; activity completion timestamp |
+| elapsedSeconds | Int? | Nullable; actual elapsed activity time in seconds, excluding pauses |
 
 ### Relationships
 
@@ -58,8 +60,14 @@ The foreign key in PlanItemEntity uses ON DELETE CASCADE to automatically delete
 
 ### TypeConverters
 
-No custom TypeConverters are required for the current A3.2 schema. localDate is stored as a String, completedAt as a nullable Int representing elapsed seconds, and isDone as a Boolean supported by Room. If localDate or other complex types are introduced later, appropriate TypeConverters will be added.
+No custom TypeConverters are required for the updated schema. localDate is stored as a String, completedAt as a nullable Long representing the activity completion timestamp, elapsedSeconds as a nullable Int representing actual elapsed activity time in seconds excluding pauses, and isDone as a Boolean supported by Room. If localDate or other complex types are introduced later, appropriate TypeConverters will be added.
 
-## Pending schema consistency review
+## Schema Consistency Review
 
-The A1 ER diagram contains both completedAt and elapsedSeconds, while the current A3.2 table contains only completedAt. The team must confirm the final field names and types before merging the Pull Request. If elapsedSeconds is adopted as a separate field, A3.2, A4, and this document must be updated consistently.
+The updated PlanItem schema includes both completedAt and elapsedSeconds, consistent with the team's clarified design.
+
+- completedAt is a nullable Long representing the activity completion timestamp.
+- elapsedSeconds is a nullable Int representing the actual elapsed activity time in seconds, excluding pauses.
+- The relationship between DailyRecordEntity and PlanItemEntity uses ON DELETE CASCADE.
+
+The team should verify that A1, A3.2, A4, and the implementation use the same field names and data types before final approval and merging.
