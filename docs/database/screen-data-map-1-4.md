@@ -1,8 +1,8 @@
-# Screen-to-Data Mapping (Screens 5–8)
+A5.1 Screens 1–4
 
-| Screen | Displayed Data / User Action | Entity / Storage | Key / Column | Read / Write |
-| :--- | :--- | :--- | :--- | :--- |
-| **5. Progress Details** | Daily target calories, remaining calories, completion percentage, and completed items count | `DailyRecordEntity`, `PlanItemEntity` | `DailyRecordEntity.targetKcal`, `PlanItemEntity.estimatedKcal`, `PlanItemEntity.isDone` | Read |
-| **6. History** | Past dates, daily completion status, total completed calories, and completed activity logs with timestamps | `DailyRecordEntity`, `PlanItemEntity` | `DailyRecordEntity.localDate`, `PlanItemEntity.activityCode`, `PlanItemEntity.estimatedKcal`, `PlanItemEntity.isDone`, `PlanItemEntity.completedAt` | Read |
-| **7. Weekly Statistics** | 7-day total calories burned, total active time, daily averages, and active days streak | `DailyRecordEntity`, `PlanItemEntity` | `DailyRecordEntity.localDate`, `PlanItemEntity.estimatedKcal`, `PlanItemEntity.elapsedSeconds`, `PlanItemEntity.isDone` | Read |
-| **8. Reminder Settings** | Reminder enabled toggle, preferred reminder time, and selected notification days | `DataStore` (`Preferences`) | `reminder_enabled`, `reminder_time`, `reminder_days` | Read / Write |
+| Screen | Reads | Writes | Source |
+| --- | --- | --- | --- |
+| 1 Goal & Input | Saved default inputs (`targetKcal`, `availableMinutes`, `fitnessLevel`), if available. | Saves validated default inputs (`targetKcal`, `availableMinutes`, `fitnessLevel`) when the user taps **Generate My Plan**. | DataStore (Preferences) |
+| 2 Home Dashboard | Today’s calorie goal (`targetKcal`) and plan items (`activityCode`, `estimatedKcal`, `isDone`). Uses these to show estimated calories burned, remaining calories, completed activity count, and the next activity. | None | Room (`DailyRecordEntity`, `PlanItemEntity`) |
+| 3 Daily Plan | Today’s plan inputs (`targetKcal`, `availableMinutes`, `fitnessLevel`) and saved plan items (`activityCode`, `durationMinutes`, `estimatedKcal`, `isDone`). Uses the activity catalog when generating or regenerating the plan. | Creates today’s `DailyRecordEntity` and its `PlanItemEntity` records on first generation. When the user taps **Regenerate Plan**, replaces unfinished plan items and keeps completed items. | Room (`DailyRecordEntity`, `PlanItemEntity`) |
+| 4 Activity Timer | The selected plan item’s `id`, `durationMinutes`, and `estimatedKcal`. | On **Finish**, updates the selected plan item by setting `isDone` to true and recording `completedAt`. | Room (`PlanItemEntity`) |
