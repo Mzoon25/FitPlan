@@ -18,4 +18,4 @@ FitPlan uses Preferences DataStore to store default user inputs and reminder set
 - DataStore stores default inputs and reminder preferences.
 - Daily plans and historical records are stored in Room.
 - Changing default preferences does not modify previous daily records.
-- Default values are proposed and must be verified against the team’s implementation before submission.
+- Default values were proposed and approved by the team. The implementation should follow these values.
