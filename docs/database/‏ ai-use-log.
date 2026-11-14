@@ -1,0 +1,16 @@
+
+# AI Use Log – FitPlan
+
+| Date | Member | Tool | Where Used | What We Asked and How We Reviewed It |
+|---|---|---|---|---|
+| 14/11/2026 | Lina Alshehri | Claude (Anthropic) | Relationships – relationships.md | Checked entity and column names against B2.5 and confirmed the delete rule with the team. |
+| 14/11/2026 | Buthaynah Fareed | Gemini (Google) | A1 – ER diagram and relationships | Asked Gemini to flag possible errors in the ER diagram relationships, then checked them against the schema. |
+| 14/11/2026 | Layan Alshehri | ChatGPT (OpenAI) | A5.1 – Screens 1–4 | Used ChatGPT to help draft the screen data map, then reviewed the four entries in Word. |
+| 14/11/2026 | Bayan Alqahtani | ChatGPT (OpenAI) | A3.4, A7, Part C | Used ChatGPT to draft the DataStore keys table and review the self-check and naming consistency against the Stage 2 and Stage 3 documents. The proposed defaults still require team confirmation. |
+| 14/11/2026 | Jouri Alshurie | ChatGPT (OpenAI) | A3.1 & A3.2 – Relational Schema | Used ChatGPT to review the relational schema, then checked the column names and constraints against our ER diagram. |
+| 14/11/2026 | Kadi Alqahtani | Gemini (Google) | A5.2 – Screens 5–8 | Asked Gemini to help draft the screens 5–8 data map, then checked it against our schema. |
+| 14/11/2026 | Mzoon Alqhtani | ChatGPT (OpenAI) | A4 – Room Database Plan | Used ChatGPT to review the Room database plan, then checked and corrected the field types and relationships against the updated team schema. |
+
+## Note
+
+Each member must verify that the recorded AI assistance accurately reflects her actual work.
