@@ -1,4 +1,5 @@
 
+
 # FitPlan – Room Database Plan
 
 ## A4.1 Entities
@@ -6,7 +7,7 @@
 | Entity class | Table | Purpose |
 |---|---|---|
 | DailyRecordEntity | DailyRecord | Stores each day's calorie goal, available time, and fitness level as a historical snapshot. |
-| PlanItemEntity | PlanItem | Stores planned activities, estimated calories, completion status, completion timestamp, and actual elapsed time for each day. |
+| PlanItemEntity | PlanItem | Stores planned activities, estimated calories, completion status, completion timestamp, and actual elapsed activity time for each day. |
 
 ### DailyRecordEntity fields
 
@@ -36,38 +37,92 @@
 - DailyRecord has a one-to-many relationship with PlanItem.
 - PlanItem.dailyRecordId references DailyRecord.id.
 - The foreign key uses ON DELETE CASCADE.
+- Deleting a DailyRecord automatically deletes its related PlanItems.
 - ActivityCatalog is a static list, not a Room table.
 - Settings are stored in DataStore, not Room.
+- completedAt and elapsedSeconds are null before activity completion.
 
 ## A4.2 DAOs and Queries
 
 | DAO | Method | Query / purpose |
 |---|---|---|
-| DailyRecordDao | insertDayWithItems() | Inserts a DailyRecord and its PlanItems in one Room transaction. |
+| DailyRecordDao | insertDayWithItems() | Inserts a DailyRecord and its PlanItems together in one Room transaction to maintain data consistency. |
 | PlanItemDao | getPlanForDay() | Returns the selected day's PlanItems as a Flow for automatic UI updates. |
-| PlanItemDao | markItemDone() | Updates isDone and completedAt only if the activity is not already completed. |
-| DailyRecordDao | getLast7Days() | Retrieves the last seven daily records ordered by localDate for History and Weekly Statistics. |
-| PlanItemDao | getBurnedKcalPerDay() | Calculates SUM(estimatedKcal) for completed activities only. |
-| DailyRecordDao | clearPastDays() | Deletes records before today's date. Related PlanItems are deleted through CASCADE. |
+| PlanItemDao | markItemDone() | Updates isDone, completedAt, and elapsedSeconds only if the activity is not already completed. |
+| DailyRecordDao | getLast7Days() | Retrieves daily records for today and the previous six calendar days, ordered by localDate, for History and Weekly Statistics. |
+| PlanItemDao | getBurnedKcalPerDay() | Calculates SUM(estimatedKcal) for completed activities only, using isDone = true. |
+| DailyRecordDao | clearPastDays() | Deletes records before today's date while preserving today's record and its PlanItems. Related PlanItems are deleted through CASCADE. |
+
+### Query and Transaction Notes
+
+- insertDayWithItems() uses a Room transaction to ensure that the DailyRecord and its associated PlanItems are saved consistently.
+- getPlanForDay() uses Flow to provide reactive updates when the stored plan changes.
+- markItemDone() prevents duplicate completion by updating only activities where isDone is false.
+- When an activity is completed, isDone becomes true, completedAt stores the completion timestamp, and elapsedSeconds stores the actual active duration excluding pauses.
+- getLast7Days() uses localDate to retrieve records within the seven-day calendar range, including today.
+- getBurnedKcalPerDay() includes only completed activities in the total estimated calories burned.
+- clearPastDays() preserves the current day's record and removes earlier records, with related PlanItems deleted through ON DELETE CASCADE.
 
 ## A4.3 Database Class and TypeConverters
 
 ### Database class
 
-FitPlanDatabase extends RoomDatabase and includes DailyRecordEntity and PlanItemEntity. It provides access to DailyRecordDao and PlanItemDao. The database uses Room transactions to save daily records with their plan items consistently.
+FitPlanDatabase extends RoomDatabase and includes DailyRecordEntity and PlanItemEntity.
 
-The foreign key in PlanItemEntity uses ON DELETE CASCADE to automatically delete related activities when a daily record is removed.
+It provides access to DailyRecordDao and PlanItemDao for managing daily records and their associated plan items.
+
+The database uses Room transactions to save DailyRecord and PlanItem records consistently.
+
+The relationship between DailyRecordEntity and PlanItemEntity is one-to-many.
+
+The foreign key in PlanItemEntity references DailyRecord.id and uses ON DELETE CASCADE to automatically delete related PlanItems when their parent DailyRecord is removed.
 
 ### TypeConverters
 
-No custom TypeConverters are required for the updated schema. localDate is stored as a String, completedAt as a nullable Long representing the activity completion timestamp, elapsedSeconds as a nullable Int representing actual elapsed activity time in seconds excluding pauses, and isDone as a Boolean supported by Room. If localDate or other complex types are introduced later, appropriate TypeConverters will be added.
+No custom TypeConverters are required for the current database schema.
+
+- localDate is stored as a String representing the calendar date.
+- completedAt is stored as a nullable Long representing the activity completion timestamp.
+- elapsedSeconds is stored as a nullable Int representing actual elapsed activity time in seconds, excluding pauses.
+- isDone is stored as a Boolean indicating whether the activity has been completed.
+- estimatedKcal is stored as a Double representing estimated calories burned.
+
+Room supports these primitive and nullable data types without requiring custom TypeConverters.
+
+If complex data types such as LocalDate or Date are introduced in future implementations, appropriate TypeConverters will be added.
 
 ## Schema Consistency Review
 
-The updated PlanItem schema includes both completedAt and elapsedSeconds, consistent with the team's clarified design.
+The Room Database Plan follows the updated A3.1 and A3.2 database design.
 
-- completedAt is a nullable Long representing the activity completion timestamp.
-- elapsedSeconds is a nullable Int representing the actual elapsed activity time in seconds, excluding pauses.
-- The relationship between DailyRecordEntity and PlanItemEntity uses ON DELETE CASCADE.
+### Entity and Field Consistency
 
-The team should verify that A1, A3.2, A4, and the implementation use the same field names and data types before final approval and merging.
+- DailyRecordEntity maps to the DailyRecord table.
+- PlanItemEntity maps to the PlanItem table.
+- DailyRecord contains five fields: id, localDate, targetKcal, availableMinutes, and fitnessLevel.
+- PlanItem contains eight fields: id, dailyRecordId, activityCode, durationMinutes, estimatedKcal, isDone, completedAt, and elapsedSeconds.
+- id and dailyRecordId use Long.
+- estimatedKcal uses Double.
+- completedAt uses nullable Long to store the activity completion timestamp.
+- elapsedSeconds uses nullable Int to store actual active seconds excluding pauses.
+- completedAt and elapsedSeconds remain null before activity completion.
+- ActivityCatalog remains a static list rather than a Room table.
+- Settings and preferences are stored in DataStore.
+
+### Relationship and Query Consistency
+
+- DailyRecord and PlanItem have a one-to-many relationship.
+- PlanItem.dailyRecordId references DailyRecord.id.
+- The relationship uses ON DELETE CASCADE.
+- Daily records and their PlanItems are inserted together using a Room transaction.
+- markItemDone() updates isDone, completedAt, and elapsedSeconds while preventing duplicate completion.
+- getPlanForDay() uses Flow for reactive updates.
+- getLast7Days() retrieves records for the current seven-day calendar period, including today.
+- getBurnedKcalPerDay() calculates estimated calories for completed activities only.
+- clearPastDays() removes previous days while preserving today's record and related PlanItems.
+
+### Final Integration Check
+
+The updated Room Database Plan is aligned with the clarified A3.1 and A3.2 design, including the separation of completion timestamps and actual elapsed activity time.
+
+Before final merging, the team should confirm that A1, A3.2, A4, the ER Diagram, the Relational Schema, and the actual Room implementation use consistent field names, data types, relationships, and query behavior.
