@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.FitPlan" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">#1B5E20</item>
+        <item name="android:navigationBarColor">#1B5E20</item>
+    </style>
+</resources>
